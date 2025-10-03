@@ -1,20 +1,18 @@
-version: '3'
-x-airflow-common:
-  &airflow-common
+# docker-compose.yml (corregido)
+x-airflow-env: &airflow-env
+  AIRFLOW__CORE__EXECUTOR: "LocalExecutor"
+  AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+  AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://airflow:airflow@postgres:5432/airflow"
+  # (opcional) AIRFLOW__CORE__FERNET_KEY: "tu_fernet_key_aqui"
+
+x-airflow-common: &airflow-common
   image: apache/airflow:2.9.0
-  environment:
-    AIRFLOW__CORE__EXECUTOR: LocalExecutor
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+  environment: *airflow-env
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
-    # Aquí montarás las credenciales de GCP
     - ./keys:/opt/airflow/keys
-  user: "${AIRFLOW_UID:-50000}:0"
-  depends_on:
-    - postgres
 
 services:
   postgres:
@@ -31,12 +29,25 @@ services:
     command: webserver
     ports:
       - "8080:8080"
+    restart: unless-stopped
     environment:
+      <<: *airflow-env
       AIRFLOW__WEBSERVER__SECRET_KEY: "my_secret_key"
 
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+    restart: unless-stopped
+
+  # Servicio init diseñado para ejecutarse como "one-off" (no exponer puertos)
+  airflow-init:
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    command: -c "airflow db migrate && \
+                 airflow connections create-default-connections || true && \
+                 airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com || true"
+    depends_on:
+      - postgres
 
 volumes:
   postgres-db-volume:
