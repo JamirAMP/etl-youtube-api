@@ -1,0 +1,18 @@
+# YouTube y Google Cloud
+google-api-python-client==2.187.0
+google-auth==2.41.0
+google-auth-oauthlib==1.2.3
+google-auth-httplib2==0.2.1
+google-cloud-bigquery==3.38.0
+
+# Data processing
+pandas==2.3.3
+pyarrow==22.0.0
+db-dtypes==1.4.4
+
+# Utilidades
+python-dotenv==1.2.1
+
+# Airflow providers
+apache-airflow-providers-google==19.1.0
+
