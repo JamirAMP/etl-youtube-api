@@ -3,6 +3,8 @@ x-airflow-env: &airflow-env
   AIRFLOW__CORE__EXECUTOR: "LocalExecutor"
   AIRFLOW__CORE__LOAD_EXAMPLES: "false"
   AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://airflow:airflow@postgres:5432/airflow"
+  AIRFLOW__CORE__DEFAULT_TIMEZONE: "America/Lima"
+  TZ: "America/Lima"
   # (opcional) AIRFLOW__CORE__FERNET_KEY: "tu_fernet_key_aqui"
 
 x-airflow-common: &airflow-common
@@ -15,14 +17,52 @@ x-airflow-common: &airflow-common
     - ./keys:/opt/airflow/keys
 
 services:
+  run_etl:
+    build: .
+    depends_on:
+      - youtube-postgres
+    env_file:
+      - .env
+    environment:
+      TZ: "America/Lima"
+    command: python /app/scripts/run_etl.py
+    restart: unless-stopped
+
   postgres:
     image: postgres:13
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
       POSTGRES_DB: airflow
+      TZ: "America/Lima"
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  youtube-postgres:
+    image: postgres:15
+    container_name: youtube_postgres
+    environment:
+      POSTGRES_USER: yt_user
+      POSTGRES_PASSWORD: yt_pass
+      POSTGRES_DB: youtube_analytics
+      TZ: "America/Lima"
+    ports:
+      - "5433:5432" # puerto distinto
+    volumes:
+      - youtube-db-volume:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  airflow-init:
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    command: -c "airflow db migrate && \
+      airflow connections create-default-connections || true && \
+      airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com || true"
+    depends_on:
+      postgres:
+        condition: service_started
+    restart: "no"
 
   airflow-webserver:
     <<: *airflow-common
@@ -30,24 +70,41 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    env_file:
+      - .env
     environment:
       <<: *airflow-env
       AIRFLOW__WEBSERVER__SECRET_KEY: "my_secret_key"
+      PYTHONPATH: /opt/airflow
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/scripts
+      - ./src:/opt/airflow/src
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
 
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
     restart: unless-stopped
-
-  # Servicio init diseñado para ejecutarse como "one-off" (no exponer puertos)
-  airflow-init:
-    <<: *airflow-common
-    entrypoint: /bin/bash
-    command: -c "airflow db migrate && \
-                 airflow connections create-default-connections || true && \
-                 airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com || true"
     depends_on:
-      - postgres
+      airflow-init:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      <<: *airflow-env
+      PYTHONPATH: /opt/airflow
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/scripts
+      - ./src:/opt/airflow/src
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
 
 volumes:
   postgres-db-volume:
+  youtube-db-volume:
