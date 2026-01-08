@@ -38,6 +38,12 @@ etl-youtube-api/
 
 ---
 
+## 📊 Dashboard
+
+[![Power BI](https://img.shields.io/badge/Power%20BI-Dashboard-yellow)](https://app.powerbi.com/view?r=eyJrIjoiYzI4MThlNjAtMTQwYS00NjY1LTlkMjYtNDRiNjgxYjA1ZDQ3IiwidCI6IjBlMGNiMDYwLTA5YWQtNDlmNS1hMDA1LTY4YjliNDlhYTFmNiIsImMiOjR9)
+
+---
+
 ## Consideraciones sobre la API de YouTube
 
 La **YouTube Data API** tiene un límite diario de cuota.  
