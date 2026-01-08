@@ -1,14 +1,21 @@
 # YouTube ETL – Technology Trends
 
-Proyecto ETL para extraer y almacenar información de videos de YouTube relacionados con tecnologías y lenguajes de programación, con el objetivo de analizar métricas de popularidad y engagement mediante Power BI.
+Proyecto ETL end-to-end para extraer, transformar y almacenar información de videos de YouTube relacionados con tecnologías y lenguajes de programación, con el objetivo de analizar métricas de popularidad y engagement mediante Power BI.
 
-El pipeline está orquestado con Apache Airflow y ejecuta todo el flujo en contenedores Docker.
+El pipeline está orquestado con Apache Airflow y se ejecuta completamente en contenedores Docker.
+El dashboard se actualiza automáticamente a partir de un pipeline ETL que consume la YouTube Data API y almacena los datos en PostgreSQL.
 
 ---
 
 ## Arquitectura de la solución
 
 ![Architecture Diagram](docs/ETL_youtube.drawio.png)
+
+---
+
+## Dashboard interactivo
+
+[![Power BI](https://img.shields.io/badge/Power%20BI-Dashboard-yellow)](https://app.powerbi.com/view?r=eyJrIjoiYzI4MThlNjAtMTQwYS00NjY1LTlkMjYtNDRiNjgxYjA1ZDQ3IiwidCI6IjBlMGNiMDYwLTA5YWQtNDlmNS1hMDA1LTY4YjliNDlhYTFmNiIsImMiOjR9)
 
 ---
 
@@ -35,12 +42,6 @@ etl-youtube-api/
 4. Se limpian y transforman los datos
 5. Se cargan en PostgreSQL
 6. Los datos son consumidos desde Power BI
-
----
-
-## 📊 Dashboard
-
-[![Power BI](https://img.shields.io/badge/Power%20BI-Dashboard-yellow)](https://app.powerbi.com/view?r=eyJrIjoiYzI4MThlNjAtMTQwYS00NjY1LTlkMjYtNDRiNjgxYjA1ZDQ3IiwidCI6IjBlMGNiMDYwLTA5YWQtNDlmNS1hMDA1LTY4YjliNDlhYTFmNiIsImMiOjR9)
 
 ---
 
@@ -92,4 +93,5 @@ python /opt/airflow/scripts/run_etl.py PY
 ## Autor
 
 **Jamir Marzal**  
-Estudiante de Ingeniería de Software – Enfoque en Data Engineering
+Estudiante de Ingeniería de Software 
+Enfoque en Data Engineering
