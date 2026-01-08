@@ -2,7 +2,7 @@
 
 Proyecto ETL para extraer y almacenar información de videos de YouTube relacionados con tecnologías y lenguajes de programación, con el objetivo de analizar métricas de popularidad y engagement mediante Power BI.
 
-El pipeline está orquestado con **Apache Airflow** y ejecuta todo el flujo en contenedores **Docker**.
+El pipeline está orquestado con Apache Airflow y ejecuta todo el flujo en contenedores Docker.
 
 ---
 
@@ -46,7 +46,7 @@ etl-youtube-api/
 
 ## Consideraciones sobre la API de YouTube
 
-La **YouTube Data API** tiene un límite diario de cuota.  
+La YouTube Data API tiene un límite diario de cuota.  
 Para evitar excederlo, el ETL está diseñado para:
 
 - Ejecutar una tecnología por corrida
